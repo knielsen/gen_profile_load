@@ -220,7 +220,8 @@ do_vqueryq(struct query *q, va_list ap, int fetch_results)
     unsigned long outlen;
     MYSQL_BIND bind[MAX_PH];
     union { int vi; struct { char *s; unsigned long l;} vs; } bindval[MAX_PH];
-    int typ= (fetch_results ? CURSOR_TYPE_READ_ONLY : CURSOR_TYPE_NO_CURSOR);
+    unsigned long typ=
+      (fetch_results ? CURSOR_TYPE_READ_ONLY : CURSOR_TYPE_NO_CURSOR);
     mysql_stmt_attr_set(q->stmt, STMT_ATTR_CURSOR_TYPE, (void *)&typ);
 
     /*
