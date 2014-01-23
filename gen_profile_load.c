@@ -810,6 +810,7 @@ main(int argc, char *argv[])
   }
   stop_server();
   mysql_close(&mysql);
+  mysql_server_end();
 
   return 0;
 }
