@@ -243,7 +243,7 @@ do_vqueryq(struct query *q, va_list ap, int fetch_results)
         bind[i].buffer_type= MYSQL_TYPE_STRING;
         bindval[i].vs.s= va_arg(ap, char *);
         bindval[i].vs.l= strlen(bindval[i].vs.s);
-        bind[i].buffer= &bindval[i].vs.s;
+        bind[i].buffer= bindval[i].vs.s;
         bind[i].is_null= NULL;
         bind[i].length= &bindval[i].vs.l;
         break;
@@ -490,7 +490,12 @@ install_server(void)
   FILE *f;
   int c;
 
-  err= mkdir("pgo_data", 0777);
+  /*
+    Lets make the test data directory unreadable to other than the user.
+    We do not want to allow others access to the socket to be able to
+    access the server and run arbitrary query as SUPER.
+  */
+  err= mkdir("pgo_data", 0700);
   if (err)
     fatal("Failed to create mysqld data directory pgo_data/");
 
@@ -539,6 +544,7 @@ start_server(void)
            "sql/mysqld --no-defaults --language=\"$(pwd)/sql/share/english\" "
            "--basedir=\"$(pwd)\" --datadir=pgo_data "
            "--socket=\"$(pwd)/pgo_data/mysql.sock\" --skip-networking "
+           "--secure-file-priv=\"$(pwd)/pgo_data\" "
            "--innodb-buffer-pool-size=128M%s",
            (do_binlog ? " --log-bin=master_bin --server-id=1" : ""));
 
@@ -713,7 +719,7 @@ pl_update2(const char *engine)
   do
   {
     mk_string(s, sizeof(s), i, i);
-    do_queryq(q, i, s, s);
+    do_queryq(q, i, s, s, i);
   } while ((i= (i+A1)%M) != 0);
 
   free_query(q);
