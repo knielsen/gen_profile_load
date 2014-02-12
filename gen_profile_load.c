@@ -560,7 +560,7 @@ stop_server(void)
 {
   int status;
 
-  do_queryf("shutdown");
+  mysql_shutdown(&mysql, SHUTDOWN_DEFAULT);
 
   if (mysqld_pid <= 0)
     return;
